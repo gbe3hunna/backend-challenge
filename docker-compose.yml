@@ -1,0 +1,66 @@
+version: '3.9'
+
+services:
+  api:
+    build:
+      context: .
+      dockerfile: ./docker/api/api.Dockerfile
+    volumes:
+      - ./src:/code/src
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    depends_on:
+      - db
+  analyzer:
+    build:
+      context: .
+      dockerfile: ./docker/analyzer/analyzer.Dockerfile
+    volumes:
+      - ./src:/code/src
+    env_file:
+      - .env
+    depends_on:
+      - rabbitmq
+      - redis
+  db:
+    image: postgres:15-alpine
+    restart:
+      always
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    ports:
+      - "5432:5432"
+    env_file:
+      - .env
+  rabbitmq:
+    hostname: rabbit
+    image: rabbitmq:3-management
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    env_file:
+      - .env
+  redis:
+    hostname: redis
+    image: "redis:alpine"
+    ports:
+      - "6379:6379"
+    env_file:
+      - .env
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: pgadmin4_container
+    restart: always
+    ports:
+      - "5050:80"
+    env_file:
+      - .env
+    volumes:
+      - pgadmin-data:/var/lib/pgadmin
+
+volumes:
+  postgres_data:
+  pgadmin-data:
+
