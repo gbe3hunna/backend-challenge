@@ -12,10 +12,9 @@ class BackendChallengeECGAnalyzer(ECGAnalyzer):
         count = 0
         for index, signal in enumerate(signals):
             if index == 0:
-                if signal == 0:
-                    count += 1
-            elif signals[index - 1] > 0 and signal <= 0:
+                continue
+            elif signals[index - 1] > 0 > signal:
                 count += 1
-            elif signals[index - 1] < 0 and signal >= 0:
+            elif signals[index - 1] < 0 < signal:
                 count += 1
         return count
