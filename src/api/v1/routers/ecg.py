@@ -5,7 +5,7 @@ from fastapi import APIRouter, Depends, status, HTTPException
 from pydantic import UUID4
 
 import src.db.crud as crud
-from src.api.v1.auth.auth import authenticate_user
+from src.api.v1.auth import authenticate_user
 from src.celery.tasks import async_analyze_ecg_leads
 from src.schemas import ECGSubmission, ECGAPIAsyncResponse, ECGAPIResponse
 

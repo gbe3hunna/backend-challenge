@@ -3,7 +3,7 @@ import logging
 from fastapi import APIRouter, status, Depends, HTTPException
 from sqlalchemy.orm import Session
 
-from src.api.v1.auth.auth import password_hasher, authenticate_admin
+from src.api.v1.auth import password_hasher, authenticate_admin
 from src.db.crud import user_create
 from src.db.database import get_db
 from src.schemas import ECGUser, ECGUserCreate, BaseResponse

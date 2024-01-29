@@ -4,12 +4,17 @@ from uuid import UUID
 
 from argon2 import PasswordHasher
 from argon2.exceptions import Argon2Error
+from dotenv import load_dotenv
 from fastapi import Depends, status, HTTPException
 from fastapi.security import HTTPBasic, HTTPBasicCredentials
 from sqlalchemy.orm import Session
 
 from src.db import crud
 from src.db.database import get_db
+
+
+load_dotenv()
+
 
 security = HTTPBasic()
 password_hasher = PasswordHasher()
