@@ -12,7 +12,7 @@ from src.schemas import ECGSubmission
 def async_analyze_ecg_leads(ecg: ECGSubmission,
                             user_id: UUID,
                             analyzer: ECGAnalyzer = BackendChallengeECGAnalyzer()):
-    async_ecg_create.delay(ecg, user_id=user_id)
+    async_ecg_create(ecg, user_id=user_id)
     main_workflow = [async_analyze.s(lead.signal, analyzer=analyzer) for lead in ecg.leads]
     callback_workflow = chain(
         async_count_zero_crosses.s() |

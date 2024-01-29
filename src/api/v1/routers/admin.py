@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 
 from src.api.v1.auth import password_hasher, authenticate_admin
 from src.db.crud import user_create
-from src.db.database import get_db
+from src.db.database import get_db_fastapi
 from src.schemas import ECGUser, ECGUserCreate, BaseResponse
 
 logger = logging.getLogger(__name__)
@@ -16,7 +16,7 @@ router = APIRouter(prefix='/admin',
 
 @router.post('/register_user', status_code=status.HTTP_201_CREATED, response_model=BaseResponse)
 async def register_user(user: ECGUser,
-                        db: Session = Depends(get_db),
+                        db: Session = Depends(get_db_fastapi),
                         _=Depends(authenticate_admin)):
     extended_user = ECGUserCreate(**user.model_dump(),
                                   hashed_password=password_hasher.hash(user.password))

@@ -18,8 +18,16 @@ engine = create_engine(POSTGRES_DATABASE_URL, echo=True)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 
+def get_db_fastapi():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
+
+
 @contextmanager
-def get_db():
+def get_db_celery():
     db = SessionLocal()
     try:
         yield db

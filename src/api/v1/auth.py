@@ -10,7 +10,7 @@ from fastapi.security import HTTPBasic, HTTPBasicCredentials
 from sqlalchemy.orm import Session
 
 from src.db import crud
-from src.db.database import get_db
+from src.db.database import get_db_fastapi
 
 
 load_dotenv()
@@ -24,7 +24,7 @@ API_ADMIN_PASSWORD = os.getenv('API_ADMIN_PASSWORD')
 
 
 def authenticate_user(credentials: HTTPBasicCredentials = Depends(security),
-                      db: Session = Depends(get_db)) -> UUID:
+                      db: Session = Depends(get_db_fastapi)) -> UUID:
     username = credentials.username
     password = credentials.password
 

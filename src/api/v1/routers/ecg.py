@@ -3,10 +3,12 @@ from uuid import UUID
 
 from fastapi import APIRouter, Depends, status, HTTPException
 from pydantic import UUID4
+from sqlalchemy.orm import Session
 
 import src.db.crud as crud
 from src.api.v1.auth import authenticate_user
 from src.celery.tasks import async_analyze_ecg_leads
+from src.db.database import get_db_fastapi
 from src.schemas import ECGSubmission, ECGAPIAsyncResponse, ECGAPIResponse
 
 logger = logging.getLogger(__name__)
@@ -27,9 +29,10 @@ async def submit_ecg(ecg: ECGSubmission,
 
 @router.get('/{ecg_id}', response_model=ECGAPIResponse)
 async def get_ecg(ecg_id: UUID4,
+                  db: Session = Depends(get_db_fastapi),
                   user_id: UUID = Depends(authenticate_user)):
 
-    ecg = crud.ecg_get_by_id_and_user_id(ecg_id, user_id=user_id)
+    ecg = crud.ecg_get_by_id_and_user_id(ecg_id, user_id=user_id, db=db)
     if ecg is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
                             detail=f'ECG Analysis with ID: {ecg_id} and User ID: {user_id} not found.')
@@ -37,7 +40,7 @@ async def get_ecg(ecg_id: UUID4,
     if not ecg.analysed:
         return ECGAPIResponse(id=ecg_id, message='ECG is being analysed. Please wait...')
 
-    ecg_analysis = crud.ecg_get_analysis_by_id(ecg_id)
+    ecg_analysis = crud.ecg_get_analysis_by_id(ecg_id, db=db)
     zero_crosses_count = ecg_analysis.zero_crosses_count
 
     return ECGAPIResponse(id=ecg_id,
