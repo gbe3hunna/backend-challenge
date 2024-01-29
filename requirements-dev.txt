@@ -3,3 +3,5 @@ pytest
 fastapi
 httpx
 python-dotenv
+celery
+pydantic
