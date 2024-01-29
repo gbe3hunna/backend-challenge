@@ -1,44 +1,83 @@
-# Backend Coding Challenge
+# 💕 ECG Analyzer Service
 
-## Introduction
 
-Welcome to our coding challenge! Congratulations on successfully progressing to this stage. We appreciate the time you've invested in our selection process, and we wish you the best of luck!
+ECG Analyzer is distributed, scalable, secure and containerized web application built on top of FastAPI and Celery.
+For the sake of this challenge, it can be deployed locally with Docker Compose and provides a friendly API Documentation.
 
-At Idoven, we have a specific requirement. We aim to implement a microservice that accepts electrocardiograms (ECG) and provides various insights about them, such as calculating the number of zero crossings of the signal.
 
-## ECG Description
 
-An ECG is characterized by a sequence of numerical values, which can be either positive or negative.
+## Getting Started
+The service has been designed with scalability in mind, that's why Celery is the core here.
+FastAPI (with uvicorn workers) and Celery (with native worker approach) can be horizontally scaled whenever is needed.
+At the same time the API level just enqueue the tasks in the Celery broker (RabbitMQ) and perform some basic DB transactions.
+The business logic is decoupled from the API and attached to the Celery Workers (or RabbitMQ consumers), which are the responsible
+for analyzing an ECG and performing the operations needed.
 
-## Task
+### Prerequisites
 
-Your task is to create an API that offers two main endpoints:
-1. An endpoint to receive the ECGs for processing.
-2. An endpoint to return the associated insights.
+- [**Docker / Docker Compose**](https://www.docker.com/products/docker-desktop/)
+- **.env file** (For good practices it has not been included in the repo but can be found [here](https://password.link/NpugQkj/#TU9II1kzaG4+QF8zdWwxJnFu))
 
-### ECG Structure
+### Services
 
-- **id**: A unique identifier for each ECG.
-- **date**: The date of creation.
-- **leads**: A list containing:
-  - **name**: The lead identifier (e.g., I, II, III, aVR, aVL, aVF, V1, V2…).
-  - **number of samples**: The sample size of the signal. Note: This value might not always be present.
-  - **signal**: A list of integer values.
+| **Service Name**       | **Description**                                 |
+|------------------------|-------------------------------------------------|
+| **api**                | FastAPI service                                 |
+| **analyzer**           | Celery service                                  |
+| **rabbitmq**           | RabbitMQ service used as a broker within Celery |
+| **redis**              | Redis service used as a backend within Celery   |
+| **db**                 | PostgreSQL database service                     |
+| **pgadmin (Optional)** | PGAdmin service (UI for PostgreSQL database)    |
 
-The information to be returned by the endpoint should indicate the number of times each ECG channel crosses zero. At this stage, we don't require any other data.
 
-## Technical Specifications
+### Proposed Architecture/Workflow for Production approach
+![Workflow/Architecture](https://i.imgur.com/FlzXevl.png)
 
-In undertaking this assignment, you're afforded the autonomy to select your preferred programming language, technologies, frameworks, documentation techniques, and testing strategy. We highly value solutions that prioritize readability, maintainability, and the thoughtful application of design patterns and architectural principles. While you have flexibility, keep in mind our primary tech stack revolves around Python and FastAPI.
 
-### Scalability
+### SQL Tables and relationships
+![SQL Tables](https://i.imgur.com/r7ODFPF.png)
 
-It's important to design this service with scalability in mind. We anticipate adding more features, and the data retrieval endpoint will eventually provide more extensive data analyses.
 
-### Security
+### Running the application
 
-Considering the possibility of offering this service to external clients in the future, integrating user authentication for both endpoints is essential. Ensure that users can access only the ECGs they've uploaded. It would be beneficial to have an ADMIN role solely for registering new users, without the privilege to send or retrieve ECG data.
+Once all prerequisites are satisfied, navigate to the root directory of the project and run the following commands in order to deploy the services locally:
 
-## Submission
+Building containers:
+```bash
+docker compose build
+```
+Running containers:
+```bash
+docker compose up
+```
 
-Please provide us with the link to your solution on the GitHub repository.
+## API
+ECG API has been designed with versioning pattern, so can easily be extended in the future with more functionalities.
+Explore the API and its endpoints using OpenAPI and Redoc documentation:
+
+- [http://localhost:8000/docs](http://localhost:8000/docs)
+- [http://localhost:8000/redoc](http://localhost:8000/redoc)
+
+The authentication type is Basic Authentication (username and password)
+
+## Admin: Creating users
+
+1. Authenticate as Admin with Basic Auth (credentials can be found on the `.env` file)
+2. Perform a POST request to `/v1/admin/register_user` with the username and password to create.
+3. This user can now perform ECG submissions and result retrievals.
+
+
+## Analyzer core
+Providing an Analyzer interface (Abstract Class) is key for supporting new analyzers in the future.
+The interface and its implementation can be found on: `./src/analyzer.py`.
+
+There are 2 implementations that could analyze signals and return the count of zero-crossings.
+
+
+
+## Running the tests
+
+```bash
+pip install -r requirements-dev.txt
+pytest ./tests
+```
