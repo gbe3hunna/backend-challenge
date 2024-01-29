@@ -10,13 +10,15 @@ For the sake of this challenge, it can be deployed locally with Docker Compose a
 The service has been designed with scalability in mind, that's why Celery is the core here.
 FastAPI (with uvicorn workers) and Celery (with native worker approach) can be horizontally scaled whenever is needed.
 At the same time the API level just enqueue the tasks in the Celery broker (RabbitMQ) and perform some basic DB transactions.
+
 The business logic is decoupled from the API and attached to the Celery Workers (or RabbitMQ consumers), which are the responsible
-for analyzing an ECG and performing the operations needed.
+for analyzing an ECG and performing the operations. In order to perform actions in a completely asynchronous manner, 
+you will find some [Celery Canvas](https://docs.celeryq.dev/en/stable/userguide/canvas.html) implementations.
 
 ### Prerequisites
 
 - [**Docker / Docker Compose**](https://www.docker.com/products/docker-desktop/)
-- **.env file** (For good practices it has not been included in the repo but can be found [here](https://password.link/NpugQkj/#TU9II1kzaG4+QF8zdWwxJnFu))
+- **.env file** (Following good practices it has not been included in the repo but can be found [here](https://we.tl/t-h6UVa1aQZq)). Copy this file to the project root.
 
 ### Services
 
@@ -34,9 +36,10 @@ for analyzing an ECG and performing the operations needed.
 ![Workflow/Architecture](https://i.imgur.com/FlzXevl.png)
 
 
-### SQL Tables and relationships
+### Database: SQL Tables and relationships
 ![SQL Tables](https://i.imgur.com/r7ODFPF.png)
 
+- User passwords are hashed and persisted using [Argon2](https://medium.com/asecuritysite-when-bob-met-alice/argon2-ffb941a548c6).
 
 ### Running the application
 
@@ -51,6 +54,12 @@ Running containers:
 docker compose up
 ```
 
+## Analyzer core
+Providing an Analyzer interface (Abstract Class) is key for supporting new analyzers in the future.
+The interface and its implementation can be found on: `./src/analyzer.py`.
+
+There are 2 implementations that could analyze signals and return the count of zero-crossings.
+
 ## API
 ECG API has been designed with versioning pattern, so can easily be extended in the future with more functionalities.
 Explore the API and its endpoints using OpenAPI and Redoc documentation:
@@ -64,15 +73,7 @@ The authentication type is Basic Authentication (username and password)
 
 1. Authenticate as Admin with Basic Auth (credentials can be found on the `.env` file)
 2. Perform a POST request to `/v1/admin/register_user` with the username and password to create.
-3. This user can now perform ECG submissions and result retrievals.
-
-
-## Analyzer core
-Providing an Analyzer interface (Abstract Class) is key for supporting new analyzers in the future.
-The interface and its implementation can be found on: `./src/analyzer.py`.
-
-There are 2 implementations that could analyze signals and return the count of zero-crossings.
-
+3. This user can now perform ECG submissions and result retrievals (check API documentation).
 
 
 ## Running the tests
