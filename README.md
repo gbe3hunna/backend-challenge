@@ -18,7 +18,7 @@ you will find some [Celery Canvas](https://docs.celeryq.dev/en/stable/userguide/
 ### Prerequisites
 
 - [**Docker / Docker Compose**](https://www.docker.com/products/docker-desktop/)
-- **.env file** (Following good practices it has not been included in the repo but can be found [here](https://we.tl/t-h6UVa1aQZq)). Copy this file to the project root.
+- **.env file** (Following good practices it has not been included in the repo but can be found [here](https://rentry.co/yms8wuk6)). Copy this file to the project root.
 
 ### Services
 
